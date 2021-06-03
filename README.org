@@ -1,3 +1,7 @@
+** 3 June 2021
+
+[[file:moreInfo.R]] downloads label info from the moreInfo web page.
+
 ** 2 June 2021
 
 [[file:download.labels.R]] attempts to download labels from a hub.
