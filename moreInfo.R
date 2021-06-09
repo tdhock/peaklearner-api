@@ -4,6 +4,7 @@ library(data.table)
 hub <- "H3K4me3_TDH_ENCODE" #525 labels defined in upload hub files, see https://github.com/tdhock/feature-learning-benchmark#30-jan-2018-data-set-sizes
 todays.date <- as.Date(Sys.time())
 hub.dir <- file.path("moreInfo", hub, todays.date)
+unlink(file.path(hub.dir, "*"))
 dir.create(hub.dir, showWarnings = FALSE, recursive = TRUE)
 labels.html <- file.path(hub.dir, "labels.html")
 if(!file.exists(labels.html)){
@@ -30,6 +31,10 @@ if(file.exists(labels.csv)){
   data.table::fwrite(label.dt, labels.csv)
 }
 system(paste0("git add ", hub.dir, "/*"))
-label.dt[, .(count=.N), by=.(createdBy, lastModifiedBy)]
+
+historical.labels <- data.table(
+  labels.csv=Sys.glob("moreInfo/*/*/labels.csv")
+)[, fread(labels.csv), by=labels.csv]
+historical.labels[, .(count=.N), by=labels.csv]
 # I guess <NA> means labels were in the DB before USER ID storage was
 # implemented?
