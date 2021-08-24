@@ -1,3 +1,7 @@
+** 24 Aug 2021
+
+[[file:labels.R]] downloads labels from new API.
+
 ** 3 June 2021
 
 [[file:moreInfo.R]] downloads label info from the moreInfo web page.

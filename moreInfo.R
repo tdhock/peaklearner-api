@@ -9,8 +9,8 @@ dir.create(hub.dir, showWarnings = FALSE, recursive = TRUE)
 labels.html <- file.path(hub.dir, "labels.html")
 if(!file.exists(labels.html)){
   more.info.url <- sprintf(
-    "https://peaklearner.rc.nau.edu/myHubs/Public/%s/moreInfo/", hub)
-  download.file(more.info.url, labels.html)
+    "https://peaklearner.rc.nau.edu/Public/%s/info", hub)
+  download.file(more.info.url, labels.html, headers=c(Accept="text/html"))
 }
 labels.csv <- file.path(hub.dir, "labels.csv")
 if(file.exists(labels.csv)){
@@ -18,9 +18,10 @@ if(file.exists(labels.csv)){
 }else{
   todays.rvest <- rvest::read_html(labels.html)
   label.dt.list <- list(fill=TRUE)
-  li.element.list <- rvest::html_elements(
-    todays.rvest, xpath="//html/body/div/div/div/li")
-  for(table.i in seq_along(li.element.list)){
+  track.list <- rvest::html_elements(
+    todays.rvest, xpath="//html/body/div/div/div/h5")
+  ## TODO.
+  for(table.i in seq_along(track.list)){
     li.element <- li.element.list[[table.i]]
     li.text <- rvest::html_text(li.element)
     li.track <- nc::capture_first_vec(li.text, "'", track="[^']+")
