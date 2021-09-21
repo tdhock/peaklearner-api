@@ -1,3 +1,15 @@
+** 21 Sept 2021
+
+[[file:speed.R]] computes labeling speeds,
+
+#+BEGIN_SRC R
+> not.input[which.max(labels.per.hour), .(track, minutes, labels, labels.per.hour, bases, bases.per.hour)]
+               track  minutes labels labels.per.hour    bases bases.per.hour
+1: aorta_ENCFF115HTK 42.89853    163        227.9798 12149500       16992891
+#+END_SRC
+
+[[file:bigWig.R]]
+
 ** 24 Aug 2021
 
 [[file:labels.R]] downloads labels from new API.
