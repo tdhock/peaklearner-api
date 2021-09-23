@@ -1,3 +1,5 @@
+
+hub <- "H3K36me3_TDH_other"
 hub <- "H3K4me3_TDH_ENCODE"
 todays.date <- paste(Sys.time())
 hub.dir <- gsub("[ :]", "_", file.path("labels", hub, todays.date))
@@ -7,6 +9,7 @@ u <- sprintf(
 dir.create(hub.dir, showWarnings = FALSE, recursive = TRUE)
 labels.csv <- file.path(hub.dir, "labels.csv")
 download.file(u, labels.csv, headers=c("accept"="text/csv"))
+
 labels.dt <- data.table::fread(labels.csv)
 labels.dt[, .(
   labels=.N
