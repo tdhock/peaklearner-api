@@ -1,0 +1,1 @@
+PeakSegPipeline::bigWigToBedGraph(in.bigWig = "https://rcdata.nau.edu/genomic-ml/PeakSegFPOP/labels/H3K4me3_TDH_ENCODE/samples/thyroid/ENCFF014AIG/coverage.bigWig", out.bedGraph = "chrom10_data", chrom = "chr10", start =149509645, end = 205922707)
