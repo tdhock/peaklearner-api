@@ -10,5 +10,5 @@ download.file(u, labels.csv, headers=c("accept"="text/csv"))
 labels.dt <- data.table::fread(labels.csv)
 labels.dt[, .(
   labels=.N
-), by=.(createdBy, lastModifiedBy)]
+), by=.(chrom, lastModifiedBy)]
 system("git add labels/*/*/labels.csv")
