@@ -1,10 +1,10 @@
+hub <- "Public/H3K4me3_TDH_ENCODE"
 
-hub <- "H3K36me3_TDH_other"
-hub <- "H3K4me3_TDH_ENCODE"
+hub <- "tristanmillerschool@gmail.com/H3K36me3_TDH_other"
 todays.date <- paste(Sys.time())
 hub.dir <- gsub("[ :]", "_", file.path("labels", hub, todays.date))
 u <- sprintf(
-  "https://peaklearner.rc.nau.edu/Public/%s/labels",
+  "https://peaklearner.rc.nau.edu/%s/labels",
   hub)
 dir.create(hub.dir, showWarnings = FALSE, recursive = TRUE)
 labels.csv <- file.path(hub.dir, "labels.csv")
