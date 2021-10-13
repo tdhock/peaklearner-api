@@ -1,3 +1,6 @@
+** 13 Oct 2021
+[[file:modelSummaries.R]] downloads all model summaries (number of fp/fn
+per penalty) for all tracks/contigs on a given hub.
 ** 21 Sept 2021
 
 [[file:speed.R]] computes labeling speeds,
