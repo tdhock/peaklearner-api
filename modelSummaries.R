@@ -1,11 +1,14 @@
 library(data.table)
 user <- "Public"
 hub <- "H3K4me3_TDH_ENCODE"
+hub.url <- sprintf(
+  "https://peaklearner.rc.nau.edu/%s/%s/",
+  user, hub)
 hub.dir <- file.path("hubs", user, hub)
 info.json <- file.path(hub.dir, "info.json")
 if(!file.exists(info.json)){
   info.url <- sprintf(
-    "https://peaklearner.rc.nau.edu/%s/%s/info",
+    paste0(hub.url, "info"),
     user, hub)
   download.file(
     info.url,
@@ -34,7 +37,7 @@ orderChrom <- function(chrom.vec, ...){
     ":?",
     chromStart="[^-]*", "?",
     "-?",
-    chromEnd="[^-]*", "?") 
+    chromEnd="[^-]*", "?")
   ord.vec <- chr.dt[, order(
     suppressWarnings(as.numeric(name_or_number)),
     name_or_number,
@@ -52,9 +55,75 @@ all.contigs <- data.table::fread(
 unique(some.contigs[["chrom"]])
 track.id.vec <- names(info.list[["tracks"]])
 
+today.str <- strftime(Sys.time(), "%Y-%m-%d")
+today.dir <- file.path(
+  hub.dir, "modelSummaries", today.str)
+summary.dt.list <- list()
 for(track.i in seq_along(track.id.vec)){
   track.id <- track.id.vec[[track.i]]
   for(contig.i in 1:nrow(some.contigs)){
     contig <- some.contigs[contig.i]
+    modelSum.url <- sprintf(
+      "%s%s/modelSum?ref=%s&start=%s",
+      hub.url, track.id, contig[["chrom"]], contig[["contigStart"]])
+    modelSum.csv <- file.path(
+      today.dir, track.id,
+      contig[["chrom"]], contig[["contigStart"]],
+      "modelSum.csv")
+    dir.create(dirname(modelSum.csv), recursive=TRUE, showWarnings=FALSE)
+    cat(sprintf(
+      "%4d / %4d tracks %4d / %4d contigs\n",
+      track.i, length(track.id.vec), contig.i, nrow(some.contigs)))
+    while(!file.exists(modelSum.csv)){
+      tryCatch({
+        download.file(
+          modelSum.url, modelSum.csv,
+          quiet=TRUE, headers=c("accept"="text/csv"))
+      }, error=function(e){
+        NULL
+      })
+    }
+    this.summary <- data.table::fread(modelSum.csv, drop=1)
+    if(nrow(this.summary)){
+      nonzero.peaks <- this.summary[numPeaks != 0]
+      if(nrow(nonzero.peaks)){
+        first <- nonzero.peaks[1]
+        this.summary[numPeaks==0, `:=`(
+          possible_fn=first$possible_fn,
+          possible_fp=first$possible_fp,
+          regions=first$regions,
+          fn=first$possible_fn
+        )]
+      }
+      summary.dt.list[[paste(track.i, contig.i)]] <- data.table(
+        track.id,
+        contig,
+        this.summary)
+    }
   }
 }
+summary.dt <- do.call(rbind, summary.dt.list)
+
+today.csv <- paste0(today.dir, ".csv")
+data.table::fwrite(summary.dt, today.csv)
+system(paste("git add", today.csv))
+unlink(today.dir, recursive=TRUE)
+
+##summary.dt <- data.table::fread("hubs/Public/H3K4me3_TDH_ENCODE/modelSummaries/2021-10-13.csv")
+
+summary.dt[, computing.status := ifelse(numPeaks < 0, "computing", "done")]
+contig.track.summary <- summary.dt[, .(
+  models=.N,
+  done=sum(computing.status=="done"),
+  min.regions=min(regions),
+  max.regions=max(regions),
+  min.errors=min(errors),
+  max.errors=max(errors),
+  min.peaks=min(numPeaks),
+  max.peaks=max(numPeaks)
+), by=.(track.id, chrom, contigStart, contigEnd)]
+
+contig.track.summary[, .(
+  track.contigs=.N
+), keyby=.(penalties.computed=done)]
+contig.track.summary[, sum(done)]
