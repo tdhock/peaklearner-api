@@ -83,7 +83,7 @@ for(track.i in seq_along(track.id.vec)){
         NULL
       })
     }
-    this.summary <- data.table::fread(modelSum.csv, drop=1)
+    this.summary <- data.table::fread(modelSum.csv, drop=1, header=TRUE)
     if(nrow(this.summary)){
       nonzero.peaks <- this.summary[numPeaks != 0]
       if(nrow(nonzero.peaks)){
