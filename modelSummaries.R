@@ -74,16 +74,22 @@ for(track.i in seq_along(track.id.vec)){
     cat(sprintf(
       "%4d / %4d tracks %4d / %4d contigs\n",
       track.i, length(track.id.vec), contig.i, nrow(some.contigs)))
-    while(!file.exists(modelSum.csv)){
-      tryCatch({
-        download.file(
+    code <- -Inf
+    while(code != 0){
+      code <- tryCatch({
+        code <- download.file(
           modelSum.url, modelSum.csv,
+          method="libcurl",
           quiet=TRUE, headers=c("accept"="text/csv"))
       }, error=function(e){
-        NULL
+        Inf
       })
     }
-    this.summary <- data.table::fread(modelSum.csv, drop=1, header=TRUE)
+    this.summary <- if(file.exists(modelSum.csv)){
+      data.table::fread(modelSum.csv, drop=1, header=TRUE)
+    }else{
+      data.table()
+    }
     if(nrow(this.summary)){
       nonzero.peaks <- this.summary[numPeaks != 0]
       if(nrow(nonzero.peaks)){
